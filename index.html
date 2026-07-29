@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>藍藍生日快樂！</title>
+  <title>藍藍 破蛋日快樂！</title>
   <style>
-    /* 全局樣式 */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
     body {
-      background: #000814;
+      background-color: #03081e;
       color: #ffffff;
-      font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+      font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -23,86 +22,103 @@
       position: relative;
     }
 
-    /* 背景星空與流星 */
-    #canvas {
+    /* 背景畫布：藍色流星雨與星光 */
+    #bgCanvas {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 1;
+      z-index: 0;
       pointer-events: none;
     }
 
-    /* 容器 */
+    /* 主卡片容器 */
     .container {
       position: relative;
-      z-index: 2;
-      background: rgba(10, 25, 47, 0.85);
-      border: 1px solid rgba(0, 180, 216, 0.3);
-      backdrop-filter: blur(8px);
-      padding: 30px;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 2.5rem 2rem;
       border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0, 180, 216, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      width: 90%;
+      max-width: 480px;
       text-align: center;
-      max-width: 90%;
-      width: 450px;
     }
 
-    h1, h2 {
-      margin-bottom: 15px;
-      color: #90e0ef;
-      text-shadow: 0 0 10px #00b4d8;
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #7dd3fc;
+      text-shadow: 0 0 10px rgba(125, 211, 252, 0.5);
     }
 
-    p {
-      line-height: 1.6;
-      margin-bottom: 20px;
-      font-size: 1.1rem;
+    /* 即時倒計時顯示器 */
+    .timer-display {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 1.5rem 0;
+    }
+    .timer-box {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 0.5rem;
+      border-radius: 8px;
+      min-width: 65px;
+    }
+    .timer-box .num {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+    .timer-box .label {
+      font-size: 0.75rem;
+      color: #94a3b8;
     }
 
     /* 按鈕樣式 */
     .btn {
-      background: linear-gradient(45deg, #0077b6, #00b4d8);
+      background: linear-gradient(135deg, #38bdf8, #3b82f6);
       color: white;
       border: none;
-      padding: 12px 24px;
-      font-size: 1.1rem;
+      padding: 0.8rem 1.8rem;
+      font-size: 1rem;
+      font-weight: bold;
       border-radius: 25px;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 180, 216, 0.4);
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
       transition: all 0.3s ease;
-      margin: 5px;
+      margin-top: 1rem;
     }
     .btn:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 6px 20px rgba(0, 180, 216, 0.6);
-    }
-    .btn-secondary {
-      background: linear-gradient(45deg, #6c757d, #495057);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
     }
 
-    /* 輸入框 */
+    /* 輸入框樣式 */
     input[type="text"] {
-      padding: 10px 15px;
-      font-size: 1rem;
-      border-radius: 10px;
-      border: 1px solid #00b4d8;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      text-align: center;
-      outline: none;
-      margin-bottom: 15px;
       width: 80%;
+      padding: 0.7rem 1rem;
+      border-radius: 10px;
+      border: 1px solid #38bdf8;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 1rem;
+      text-align: center;
+      margin-top: 1rem;
+      outline: none;
     }
 
-    /* 隱藏區塊 */
+    /* 階段隱藏與顯示 */
     .step {
       display: none;
+      animation: fadeIn 0.6s ease-in-out forwards;
     }
     .step.active {
       display: block;
-      animation: fadeIn 0.8s ease;
     }
 
     @keyframes fadeIn {
@@ -110,275 +126,406 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 蛋糕製作動畫區 */
-    .cake-container {
-      margin: 20px auto;
-      height: 200px;
+    /* 心情選項按鈕組合 */
+    .mood-options {
       display: flex;
-      flex-direction: column-reverse;
-      align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    /* 藏頭藏尾詩結構 */
+    .poem-box {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1.2rem;
+      margin: 1.5rem 0;
+      line-height: 2;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      border: 1px dashed rgba(125, 211, 252, 0.4);
+    }
+    .poem-line {
+      display: block;
+    }
+    .highlight {
+      color: #f43f5e;
+      font-weight: bold;
+      font-size: 1.3rem;
+      text-shadow: 0 0 8px rgba(244, 63, 94, 0.6);
+    }
+
+    /* 蛋糕動畫 CSS */
+    .cake-container {
       position: relative;
+      width: 150px;
+      height: 160px;
+      margin: 1.5rem auto 0 auto;
     }
     .cake-layer {
-      width: 0;
-      height: 40px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
       border-radius: 10px;
-      margin-top: 5px;
-      transition: width 0.5s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      opacity: 0;
     }
-    .layer-1 { background: #ff70a6; } /* 底層 */
-    .layer-2 { background: #ff9770; } /* 中層 */
-    .layer-3 { background: #ffd670; } /* 頂層 */
+    .layer-bottom {
+      bottom: 0;
+      width: 140px;
+      height: 45px;
+      background: #f43f5e;
+      border: 2px solid #fda4af;
+    }
+    .layer-middle {
+      bottom: 45px;
+      width: 110px;
+      height: 40px;
+      background: #fbbf24;
+      border: 2px solid #fef08a;
+    }
+    .layer-top {
+      bottom: 85px;
+      width: 80px;
+      height: 35px;
+      background: #38bdf8;
+      border: 2px solid #bae6fd;
+    }
     .candle {
-      font-size: 30px;
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
+      width: 10px;
+      height: 30px;
+      background: #ffffff;
+      border-radius: 3px;
+      opacity: 0;
+    }
+    .flame {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 12px;
+      background: #f97316;
+      border-radius: 50% 50% 20% 20%;
+      box-shadow: 0 0 8px #f97316;
+      animation: flicker 0.6s infinite alternate;
+    }
+
+    @keyframes flicker {
+      0% { transform: translateX(-50%) scale(1); }
+      100% { transform: translateX(-50%) scale(1.2); }
+    }
+
+    /* 蛋糕堆疊動畫觸發類別 */
+    .animate-bottom { animation: stackUp 0.5s 0.2s forwards ease-out; }
+    .animate-middle { animation: stackUp 0.5s 0.7s forwards ease-out; }
+    .animate-top { animation: stackUp 0.5s 1.2s forwards ease-out; }
+    .animate-candle { animation: stackUp 0.5s 1.7s forwards ease-out; }
+
+    @keyframes stackUp {
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    /* 頁尾署名 */
+    .footer {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    /* 自訂彈窗 (不開心時觸發) */
+    .modal {
       display: none;
-      animation: bounce 1s infinite alternate;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
     }
-
-    @keyframes bounce {
-      from { transform: translateY(0); }
-      to { transform: translateY(-5px); }
-    }
-
-    /* 藏頭詩專用文字樣式 */
-    .acrostic-box {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 12px;
-      border-left: 4px solid #00b4d8;
-      margin: 15px 0;
-    }
-    .acrostic {
+    .modal-content {
+      background: #1e293b;
+      padding: 2rem;
+      border-radius: 15px;
       text-align: center;
-      line-height: 2;
-      font-size: 1.25rem;
-      letter-spacing: 2px;
-    }
-    .acrostic span {
-      color: #4cc9f0;
-      font-weight: bold;
-    }
-    .signature {
-      text-align: right;
-      margin-top: 15px;
-      font-size: 0.95rem;
-      color: #90e0ef;
-      font-weight: 500;
-      letter-spacing: 1px;
+      border: 1px solid #38bdf8;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
     }
   </style>
 </head>
 <body>
 
-  <!-- 藍色流星雨與星空背景 Canvas -->
-  <canvas id="canvas"></canvas>
-
-  <!-- 背景音樂（播放生日快樂歌） -->
-  <audio id="bgm" loop preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73180.mp3?filename=happy-birthday-155461.mp3" type="audio/mpeg">
-  </audio>
+  <!-- 背景流星與星光 Canvas -->
+  <canvas id="bgCanvas"></canvas>
 
   <div class="container">
 
-    <!-- 階段 1：點擊解鎖與倒計時 -->
+    <!-- 步驟 1: 神秘生日祝福準備中 + 生日倒計時器 -->
     <div id="step1" class="step active">
-      <h1>🎁 神秘生日驚喜</h1>
-      <p id="countdown-display">倒數計時：3 秒</p>
-      <button class="btn" id="start-btn" onclick="startCountdown()">點擊解鎖倒計時 ✨</button>
-    </div>
-
-    <!-- 階段 2：祝福語與對話框 -->
-    <div id="step2" class="step">
-      <h2>㊗️ 壽星生日快樂！</h2>
-      <p>請在下方對話框輸入「<b>好的</b>」以繼續：</p>
-      <input type="text" id="input-reply" placeholder="請輸入：好的">
-      <br>
-      <button class="btn" onclick="checkReply()">確認提交</button>
-    </div>
-
-    <!-- 階段 3：心情選擇與製作蛋糕 -->
-    <div id="step3" class="step">
-      <h2>今天心情怎麼樣呢？</h2>
-      <button class="btn" onclick="selectHappy(true)">開心 😊</button>
-      <button class="btn btn-secondary" onclick="selectHappy(false)">不開心 😢</button>
-
-      <div class="cake-container" id="cake-area" style="display: none;">
-        <div id="candle" class="candle">🕯️✨</div>
-        <div id="layer3" class="cake-layer layer-3">🍓 水果夾層</div>
-        <div id="layer2" class="cake-layer layer-2">🍫 巧克力奶油</div>
-        <div id="layer1" class="cake-layer layer-1">🎂 鬆軟蛋糕底</div>
+      <h1>神秘生日祝福準備中...</h1>
+      <p style="font-size: 0.85rem; color: #94a3b8;">距離 2026/07/31 00:00 倒計時</p>
+      
+      <div class="timer-display">
+        <div class="timer-box"><div class="num" id="days">00</div><div class="label">天</div></div>
+        <div class="timer-box"><div class="num" id="hours">00</div><div class="label">時</div></div>
+        <div class="timer-box"><div class="num" id="minutes">00</div><div class="label">分</div></div>
+        <div class="timer-box"><div class="num" id="seconds">00</div><div class="label">秒</div></div>
       </div>
-      <p id="cake-status" style="margin-top: 10px;"></p>
+
+      <button class="btn" onclick="startUnlockCountdown()">點擊解鎖倒計時</button>
     </div>
 
-    <!-- 階段 4：藏頭藏尾詩與落款 -->
+    <!-- 步驟 2: 點擊解鎖倒計時 3 秒 -->
+    <div id="step2" class="step">
+      <h1>正在為您解鎖...</h1>
+      <div id="unlockCountdown" style="font-size: 3.5rem; font-weight: bold; color: #38bdf8; margin: 1.5rem 0;">3</div>
+    </div>
+
+    <!-- 步驟 3: 驗證輸入 -->
+    <div id="step3" class="step">
+      <h1>祝壽星生日快樂</h1>
+      <p style="font-size: 0.9rem; color: #cbd5e1;">請輸入：「好的」並點選確認提交</p>
+      <input type="text" id="verifyInput" placeholder="好的">
+      <br>
+      <button class="btn" onclick="checkVerification()">確認提交</button>
+    </div>
+
+    <!-- 步驟 4: 心情選擇 -->
     <div id="step4" class="step">
-      <h2>㊗️ 藍藍破蛋日快樂！</h2>
-      <div class="acrostic-box">
-        <div class="acrostic">
-          <span>生</span> 日 快 樂 <span>生</span><br>
-          <span>日</span> 快 樂 生 <span>日</span><br>
-          <span>快</span> 樂 生 日 <span>快</span><br>
-          <span>樂</span> 生 日 快 <span>樂</span>
+      <h1>今天心情怎麼樣呢？</h1>
+      <div class="mood-options">
+        <button class="btn" onclick="selectMood(true)">😊 開心</button>
+        <button class="btn" style="background: linear-gradient(135deg, #64748b, #475569);" onclick="selectMood(false)">🥺 不開心</button>
+      </div>
+    </div>
+
+    <!-- 步驟 5: 祝福展示與蛋糕 -->
+    <div id="step5" class="step">
+      <h1 style="color: #f43f5e;">㊗️藍藍 破蛋日快樂！</h1>
+
+      <!-- 藏頭藏尾詩 -->
+      <div class="poem-box">
+        <span class="poem-line"><span class="highlight">生</span>日快樂<span class="highlight">生</span></span>
+        <span class="poem-line"><span class="highlight">日</span>快樂生<span class="highlight">日</span></span>
+        <span class="poem-line"><span class="highlight">快</span>樂生日<span class="highlight">快</span></span>
+        <span class="poem-line"><span class="highlight">樂</span>生日快<span class="highlight">樂</span></span>
+      </div>
+      <p style="font-size: 0.9rem; color: #7dd3fc;">藏頭又藏尾，完美✨</p>
+
+      <!-- 動態堆疊蛋糕 -->
+      <div class="cake-container" id="cakeContainer">
+        <div class="cake-layer layer-bottom" id="layerBottom"></div>
+        <div class="cake-layer layer-middle" id="layerMiddle"></div>
+        <div class="cake-layer layer-top" id="layerTop"></div>
+        <div class="candle" id="candle">
+          <div class="flame"></div>
         </div>
-        <p style="margin-top: 10px; font-weight: bold; color: #4cc9f0;">藏頭又藏尾，完美 ✨</p>
-        <!-- 藏頭詩緊接著的落款 -->
-        <div class="signature">20260731 By Laura</div>
+      </div>
+
+      <div class="footer">
+        20260731 By Laura |蘿拉
       </div>
     </div>
 
   </div>
 
+  <!-- 不開心對話框 -->
+  <div class="modal" id="sadModal">
+    <div class="modal-content">
+      <h2 style="margin-bottom: 1rem;">壽星笑開懷好運天天來🌈</h2>
+      <button class="btn" onclick="closeModal()">收下好運並繼續 ✨</button>
+    </div>
+  </div>
+
   <script>
-    /* --- 1. 背景：藍色流星雨 + 閃爍星光特效 --- */
-    const canvas = document.getElementById('canvas');
+    /* ----- 1. 藍色流星雨與閃爍星光背景動畫 ----- */
+    const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
 
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-    window.addEventListener('resize', () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    });
-
-    // 閃爍星星
-    const stars = Array.from({ length: 150 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      size: Math.random() * 2,
+    const stars = Array.from({ length: 100 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 1.5,
       alpha: Math.random(),
       speed: Math.random() * 0.02 + 0.005
     }));
 
-    // 藍色流星
     const meteors = Array.from({ length: 6 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height * 0.5,
-      len: Math.random() * 80 + 50,
-      speed: Math.random() * 4 + 6,
-      size: Math.random() * 1.5 + 1
+      x: Math.random() * canvas.width,
+      y: Math.random() * (canvas.height / 2),
+      length: Math.random() * 80 + 50,
+      speed: Math.random() * 4 + 4,
+      alpha: Math.random() * 0.8 + 0.2
     }));
 
-    function drawStarsAndMeteors() {
-      ctx.clearRect(0, 0, width, height);
+    function drawBackground() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // 畫星星
       stars.forEach(star => {
         star.alpha += star.speed;
         if (star.alpha > 1 || star.alpha < 0) star.speed = -star.speed;
-        ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(star.alpha)})`;
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(star.alpha)})`;
         ctx.fill();
       });
 
-      // 畫藍色流星
       meteors.forEach(m => {
         m.x -= m.speed;
         m.y += m.speed;
 
-        if (m.x < -100 || m.y > height + 100) {
-          m.x = Math.random() * width + 200;
+        if (m.x < -100 || m.y > canvas.height + 100) {
+          m.x = Math.random() * canvas.width + 100;
           m.y = -50;
+          m.speed = Math.random() * 4 + 4;
         }
 
-        const gradient = ctx.createLinearGradient(m.x, m.y, m.x + m.len, m.y - m.len);
-        gradient.addColorStop(0, 'rgba(0, 212, 255, 1)');
-        gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
+        const gradient = ctx.createLinearGradient(m.x, m.y, m.x + m.length, m.y - m.length);
+        gradient.addColorStop(0, 'rgba(56, 189, 248, 1)');
+        gradient.addColorStop(1, 'rgba(56, 189, 248, 0)');
 
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = m.size;
         ctx.beginPath();
         ctx.moveTo(m.x, m.y);
-        ctx.lineTo(m.x + m.len, m.y - m.len);
+        ctx.lineTo(m.x + m.length, m.y - m.length);
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 2;
         ctx.stroke();
       });
 
-      requestAnimationFrame(drawStarsAndMeteors);
+      requestAnimationFrame(drawBackground);
     }
-    drawStarsAndMeteors();
+    drawBackground();
 
+    /* ----- 2. 真實生日倒計時器 (目標修改為: 2026/07/31 00:00:00) ----- */
+    const targetDate = new Date('2026-07-31T00:00:00').getTime();
 
-    /* --- 2. 階段邏輯與互動事件 --- */
+    function updateBirthdayTimer() {
+      const now = new Date().getTime();
+      const diff = targetDate - now;
 
-    // 階段 1：倒計時邏輯
-    function startCountdown() {
-      const audio = document.getElementById('bgm');
-      audio.play().catch(() => { console.log('Autoplay prevented'); });
+      if (diff > 0) {
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
 
-      const btn = document.getElementById('start-btn');
-      btn.disabled = true;
-      btn.style.opacity = '0.5';
+        document.getElementById('days').textContent = String(d).padStart(2, '0');
+        document.getElementById('hours').textContent = String(h).padStart(2, '0');
+        document.getElementById('minutes').textContent = String(m).padStart(2, '0');
+        document.getElementById('seconds').textContent = String(s).padStart(2, '0');
+      } else {
+        document.getElementById('days').textContent = '00';
+        document.getElementById('hours').textContent = '00';
+        document.getElementById('minutes').textContent = '00';
+        document.getElementById('seconds').textContent = '00';
+      }
+    }
+    setInterval(updateBirthdayTimer, 1000);
+    updateBirthdayTimer();
 
+    /* ----- 3. Web Audio API 動態演奏生日快樂歌 ----- */
+    let audioCtx = null;
+    function playBirthdaySong() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      
+      const notes = [
+        { f: 264, d: 0.4 }, { f: 264, d: 0.4 }, { f: 297, d: 0.8 }, { f: 264, d: 0.8 }, { f: 352, d: 0.8 }, { f: 330, d: 1.2 },
+        { f: 264, d: 0.4 }, { f: 264, d: 0.4 }, { f: 297, d: 0.8 }, { f: 264, d: 0.8 }, { f: 396, d: 0.8 }, { f: 352, d: 1.2 },
+        { f: 264, d: 0.4 }, { f: 264, d: 0.4 }, { f: 528, d: 0.8 }, { f: 440, d: 0.8 }, { f: 352, d: 0.8 }, { f: 330, d: 0.8 }, { f: 297, d: 0.8 },
+        { f: 466, d: 0.4 }, { f: 466, d: 0.4 }, { f: 440, d: 0.8 }, { f: 352, d: 0.8 }, { f: 396, d: 0.8 }, { f: 352, d: 1.5 }
+      ];
+
+      let currentTime = audioCtx.currentTime + 0.1;
+
+      notes.forEach(note => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(note.f, currentTime);
+        
+        gain.gain.setValueAtTime(0.1, currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, currentTime + note.d - 0.05);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(currentTime);
+        osc.stop(currentTime + note.d);
+
+        currentTime += note.d;
+      });
+    }
+
+    /* ----- 4. 流程與互動控制邏輯 ----- */
+    function goToStep(stepNumber) {
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      document.getElementById(`step${stepNumber}`).classList.add('active');
+    }
+
+    // 點擊解鎖倒計時 (3秒)
+    function startUnlockCountdown() {
+      goToStep(2);
       let count = 3;
-      const display = document.getElementById('countdown-display');
-
-      const timer = setInterval(() => {
+      const timerEl = document.getElementById('unlockCountdown');
+      const interval = setInterval(() => {
         count--;
         if (count > 0) {
-          display.innerText = `倒數計時：${count} 秒`;
+          timerEl.textContent = count;
         } else {
-          clearInterval(timer);
-          goToStep('step1', 'step2');
+          clearInterval(interval);
+          goToStep(3);
         }
       }, 1000);
     }
 
-    // 階段 2：對話框驗證
-    function checkReply() {
-      const val = document.getElementById('input-reply').value.trim();
-      if (val === "好的") {
-        goToStep('step2', 'step3');
+    // 驗證輸入「好的」
+    function checkVerification() {
+      const inputVal = document.getElementById('verifyInput').value.trim();
+      if (inputVal === "好的") {
+        goToStep(4);
       } else {
-        alert("請輸入「好的」才可以繼續唷！");
+        alert("請輸入「好的」並點選確認提交！");
       }
     }
 
-    // 階段 3：選擇開心與製作蛋糕
-    function selectHappy(isHappy) {
+    // 心情選擇與觸發效果
+    function selectMood(isHappy) {
       if (!isHappy) {
-        alert("不能不開心😂");
-        return;
+        document.getElementById('sadModal').style.display = 'flex';
+      } else {
+        showFinalPage();
       }
-
-      document.getElementById('cake-area').style.display = 'flex';
-      const status = document.getElementById('cake-status');
-      
-      status.innerText = "正在為藍藍堆疊蛋糕中...";
-
-      setTimeout(() => {
-        document.getElementById('layer1').style.width = '200px';
-      }, 300);
-
-      setTimeout(() => {
-        document.getElementById('layer2').style.width = '150px';
-      }, 1000);
-
-      setTimeout(() => {
-        document.getElementById('layer3').style.width = '100px';
-      }, 1700);
-
-      setTimeout(() => {
-        document.getElementById('candle').style.display = 'block';
-        status.innerText = "蛋糕製作完成！🎂✨";
-      }, 2400);
-
-      setTimeout(() => {
-        goToStep('step3', 'step4');
-      }, 4000);
     }
 
-    // 切換顯示步驟
-    function goToStep(currentId, nextId) {
-      document.getElementById(currentId).classList.remove('active');
-      document.getElementById(nextId).classList.add('active');
+    function closeModal() {
+      document.getElementById('sadModal').style.display = 'none';
+      showFinalPage();
+    }
+
+    // 顯示最終祝福頁面、播放歌曲與觸發蛋糕動畫
+    function showFinalPage() {
+      goToStep(5);
+      playBirthdaySong();
+
+      // 依序堆疊蛋糕動畫
+      document.getElementById('layerBottom').classList.add('animate-bottom');
+      document.getElementById('layerMiddle').classList.add('animate-middle');
+      document.getElementById('layerTop').classList.add('animate-top');
+      document.getElementById('candle').classList.add('animate-candle');
     }
   </script>
 </body>
