@@ -1,1 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>生日快樂互動頁面</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+    #cakeLayers { margin-top: 20px; font-size: 18px; color: #d63384; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h2>🎉 點擊按鈕解鎖倒計時 🎉</h2>
+  <button onclick="startCountdown()">解鎖</button>
+  <p id="countdown"></p>
+
+  <h3>㊗️壽星生日快樂！</h3>
+  <input type="text" id="replyBox" placeholder="輸入：好的">
+  <button onclick="checkReply()">送出</button>
+  <p id="replyResult"></p>
+
+  <h3>選擇心情</h3>
+  <button onclick="chooseMood(true)">開心 👉🏻</button>
+  <button onclick="chooseMood(false)">不開心</button>
+  <div id="cakeLayers"></div>
+
+  <h3>㊗️藍藍破蛋日快樂！</h3>
+  <pre>
+生日快樂生
+日快樂生日
+快樂生日快
+樂生日快樂
+  </pre>
+  <p>藏頭又藏尾，完美</p>
+  <p>20260731 By Laura</p>
+
+  <script>
+    function startCountdown() {
+      let timeLeft = 5;
+      const countdownEl = document.getElementById("countdown");
+      const timer = setInterval(() => {
+        countdownEl.textContent = "倒計時：" + timeLeft + " 秒";
+        timeLeft--;
+        if (timeLeft < 0) {
+          clearInterval(timer);
+          countdownEl.textContent = "🎉 倒計時完成！生日快樂 🎉";
+        }
+      }, 1000);
+    }
+
+    function checkReply() {
+      const reply = document.getElementById("replyBox").value.trim();
+      const resultEl = document.getElementById("replyResult");
+      if (reply === "好的") {
+        resultEl.textContent = "✅ 回覆正確！祝你生日快樂！";
+      } else {
+        resultEl.textContent = "❌ 請輸入「好的」";
+      }
+    }
+
+    function chooseMood(isHappy) {
+      const cakeEl = document.getElementById("cakeLayers");
+      cakeEl.innerHTML = "";
+      if (isHappy) {
+        let layers = ["🍰 第一層蛋糕", "🎂 第二層蛋糕", "🧁 第三層蛋糕", "🍮 第四層蛋糕"];
+        let i = 0;
+        const interval = setInterval(() => {
+          cakeEl.innerHTML += layers[i] + "<br>";
+          i++;
+          if (i >= layers.length) clearInterval(interval);
+        }, 1000);
+      } else {
+        cakeEl.textContent = "不能不開心😂";
+      }
+    }
+  </script>
+</body>
+</html>
 
